@@ -41,9 +41,11 @@ void Observable::unregister() {
     if (!observers_.unique()) {
         observers_.reset(new ObserverList(*observers_));
     }
-    for (auto iter = observers_->begin(); iter != observers_->end(); ++iter) {
+    for (auto iter = observers_->begin(); iter != observers_->end(); ) {
         if (iter->expired()) {
             iter = observers_->erase(iter);
+        } else {
+            ++iter;
         }
     }
 }

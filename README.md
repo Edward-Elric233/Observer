@@ -317,10 +317,12 @@ void Observable::register_(Observer *observer) {
 
 void Observable::unregister(Observer *observer) {
     std::lock_guard<std::mutex> lockGuard(mutex_);
-    for (auto iter = observers.begin(); iter != observers.end(); ++iter) {
+    for (auto iter = observers.begin(); iter != observers.end(); ) {
         if (*iter == observer) {
             iter = observers.erase(iter);
             break;
+        } else {
+            ++iter;
         }
     }
 }
@@ -420,10 +422,11 @@ public:
 void Observable::notify() {
     std::lock_guard<std::mutex> lockGuard(mutex_);
 
-    for (auto iter = observers.begin(); iter != observers.end(); ++iter) {
+    for (auto iter = observers.begin(); iter != observers.end();  ) {
         auto p = iter->lock();
         if (p) {
             p->update();
+            ++iter;
         } else {
             //weak_ptr失效，所指向的对象已经析构了
             //删除操作
@@ -442,10 +445,12 @@ void Observable::register_(const std::weak_ptr<Observer> &observer) {
 /*
 void Observable::unregister(Observer *observer) {
     std::lock_guard<std::mutex> lockGuard(mutex_);
-    for (auto iter = observers.begin(); iter != observers.end(); ++iter) {
+    for (auto iter = observers.begin(); iter != observers.end(); ) {
         if (*iter == observer) {
             iter = observers.erase(iter);
             break;
+        } ele {
+        	++iter;
         }
     }
 }
@@ -603,10 +608,11 @@ public:
 void Observable::notify() {
     std::lock_guard<std::mutex> lockGuard(mutex_);
 
-    for (auto iter = observers.begin(); iter != observers.end(); ++iter) {
+    for (auto iter = observers.begin(); iter != observers.end(); ) {
         auto p = iter->lock();
         if (p) {
             p->update();
+            ++iter;
         } else {
             //weak_ptr失效，所指向的对象已经析构了
             //删除操作
@@ -629,9 +635,11 @@ void Observable::register_(const std::weak_ptr<Observer> &observer) {
 
 void Observable::unregister() {
     std::lock_guard<std::mutex> lockGuard(mutex_);
-    for (auto iter = observers.begin(); iter != observers.end(); ++iter) {
+    for (auto iter = observers.begin(); iter != observers.end(); ) {
         if (iter->expired()) {
             iter = observers.erase(iter);
+        } else {
+            ++iter;
         }
     }
 }
@@ -789,9 +797,11 @@ void Observable::unregister() {
     if (!observers_.unique()) {
         observers_.reset(new ObserverList(*observers_));
     }
-    for (auto iter = observers_->begin(); iter != observers_->end(); ++iter) {
+    for (auto iter = observers_->begin(); iter != observers_->end();) {
         if (iter->expired()) {
             iter = observers_->erase(iter);
+        } else {
+            ++iter;
         }
     }
 }
